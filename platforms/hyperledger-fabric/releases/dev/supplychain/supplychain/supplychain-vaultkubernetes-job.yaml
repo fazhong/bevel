@@ -8,7 +8,7 @@ metadata:
 spec:
   releaseName: supplychain-vaultkubenertes-job
   chart:
-    git: https://github.com/fazhong/bevel.git
+    git: git@github.com:fazhong/bevel.git
     ref: develop
     path: platforms/hyperledger-fabric/charts/vault_kubernetes
   values:
