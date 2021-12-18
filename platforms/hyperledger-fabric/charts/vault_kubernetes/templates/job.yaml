@@ -24,7 +24,7 @@ spec:
         app.kubernetes.io/name: "{{ $.Values.metadata.name }}-vaultkubenertes-job"
         helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
         app.kubernetes.io/managed-by: {{ .Release.Service }}
-        app.kubernetes.io/instance: {{ .Release.Name }} 
+        app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       restartPolicy: OnFailure
       imagePullSecrets:
@@ -74,7 +74,7 @@ spec:
           - name: POLICY_NAME
             value: {{ $.Values.vault.policy }}
           - name: COMPONENT_TYPE
-            value: {{ $.Values.metadata.component_type }}          
+            value: {{ $.Values.metadata.component_type }}
           - name: NAMESPACE
             value: {{ $.Values.metadata.namespace }}
           - name: POLICIES_PATH
@@ -99,7 +99,7 @@ spec:
               # Check if authpath already created
               vault_auth_check=$(curl --header "X-Vault-Token: $ROOT_TOKEN" \
                 ${VAULT_ADDR}/v1/sys/auth | jq '."{{ $.Values.vault.authpath }}/"');
-              
+
               if [ "$vault_auth_check" == 'null' ]; then
                 echo "authpath does not exist. Creating ..."
                 # This command enables the path for the organizations and orderers on vault
@@ -122,7 +122,8 @@ spec:
                   {
                     \"token_reviewer_jwt\": \"${REVIEWER_TOKEN}\",
                     \"kubernetes_host\": \"${KUBERNETES_URL}\",
-                    \"kubernetes_ca_cert\": \"${KUBE_SA_CRT_ONELINE}\"
+                    \"kubernetes_ca_cert\": \"${KUBE_SA_CRT_ONELINE}\",
+                    \"disable_local_ca_jwt\": \"true\"
                   }" > payload.json
 
                 # This command writtes the Service Account token to the vault for Organisations
@@ -145,13 +146,13 @@ spec:
               # Check if policy already created
               vault_policy_check=$(curl --header "X-Vault-Token: $ROOT_TOKEN" \
                 ${VAULT_ADDR}/v1/sys/policy/${POLICY_NAME} | jq -r '.name');
-              
+
               if [ "$vault_policy_check" == 'null' ]; then
                 echo "vaultpolicy does not exist. Creating ..."
                 mkdir -p ${POLICIES_PATH}
 
                 if [ $COMPONENT_TYPE == 'orderer' ]; then
-                  
+
                   # This command writes the policies to the vault
                   curl \
                   --header "X-Vault-Token: $ROOT_TOKEN" \
@@ -200,7 +201,7 @@ spec:
                 ${VAULT_ADDR}/v1/auth/${KUBERNETES_AUTH_PATH}/role/${VAULT_ROLE});
 
                 rm payload.json
-            
+
                 validateVaultResponse ${response_status};
               fi;
           volumeMounts:
