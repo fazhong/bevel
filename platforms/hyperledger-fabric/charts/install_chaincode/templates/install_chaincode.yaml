@@ -144,7 +144,7 @@ spec:
               --header "X-Vault-Token: ${VAULT_CLIENT_TOKEN}" \
           ${VAULT_ADDR}/v1/${vault_secret_key} | jq -r 'if .errors then . else . end')
           validateVaultResponse "secret (${vault_secret_key})" "${LOOKUP_SECRET_RESPONSE}" "LOOKUPSECRETRESPONSE"
-          VALUE_OF_SECRET=$(echo ${LOOKUP_SECRET_RESPONSE} | jq -r ".data.data[\"${vault_data_key}\"]")         
+          VALUE_OF_SECRET=$(echo ${LOOKUP_SECRET_RESPONSE} | jq -r ".data.data[\"${vault_data_key}\"]")
           echo "${VALUE_OF_SECRET}" >> ${MOUNT_PATH}/user_cred
 
         volumeMounts:
@@ -166,11 +166,11 @@ spec:
         - |-
           #!/bin/bash sh
           ## Git repository clone for chaincode
-          mkdir -p /root/.ssh/          
+          mkdir -p /root/.ssh/
           apk add curl openssh
           ssh-keyscan {{ $.Values.chaincode.repository.hostname }} > /root/.ssh/known_hosts
           git_password=$(cat /opt/gopath/src/github.com/hyperledger/fabric/crypto/user_cred)
-          cd /tmp && git clone https://{{ $.Values.chaincode.repository.git_username }}:$git_password@{{ $.Values.chaincode.repository.url }} -b {{ $.Values.chaincode.repository.branch }} chaincode
+          cd /tmp && git clone http://{{ $.Values.chaincode.repository.git_username }}:$git_password@{{ $.Values.chaincode.repository.url }} -b {{ $.Values.chaincode.repository.branch }} chaincode
           ls
           echo $GOPATH
           if [ ${CC_RUNTIME_LANGUAGE} = "golang" ]
@@ -185,10 +185,10 @@ spec:
 
             #chaincode path
             CC_SRC_PATH="github.com/chaincode/${CHAINCODE_NAME}/${CHAINCODE_MAINDIR}"
-            
+
           elif [ ${CC_RUNTIME_LANGUAGE} = "java" ]
           then
-            ## Copying desired chaincode to a location 
+            ## Copying desired chaincode to a location
             mkdir -p $GOPATH/src/github.com/chaincode
             cp -R /tmp/chaincode/{{ $.Values.chaincode.repository.path }}/* $GOPATH/src/github.com/chaincode/
 
@@ -229,7 +229,7 @@ spec:
             echo "Installing Chaincode for ${NETWORK_VERSION}"
             ## Installing chaincode on a peer
             peer chaincode install -n ${CHAINCODE_NAME} -v ${CHAINCODE_VERSION} -p ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE}
-            echo "Chaincode installed for Fabric v.1.4.X"         
+            echo "Chaincode installed for Fabric v.1.4.X"
           else
             echo "Installing Chaincode for ${NETWORK_VERSION}"
             if [ $PEER_NAME = "peer0" ];then
